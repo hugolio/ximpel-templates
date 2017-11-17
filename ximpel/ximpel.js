@@ -510,6 +510,9 @@ ximpel.SubjectModel = function(){
 
 	// An array of leadsToModels. These leadsToModels specify the leadsTo value that is used when the subject ends.
 	this.leadsToList = [];
+
+	// A key-value object where the key is an event type (like 'swipeleft', 'swiperight') and the value is a leadsToModel
+	this.swipeTo = {};
 }
 ximpel.SubjectModel.prototype = new ximpel.Model();
 ximpel.SubjectModel.prototype.description = '';
@@ -760,6 +763,8 @@ ximpel.ConfigModel.prototype.titleScreenImage = 'assets/ximpel_title_screen.png'
 ximpel.ConfigModel.prototype.enableControls = true;
 ximpel.ConfigModel.prototype.controlsDisplayMethod = 'overlay';
 ximpel.ConfigModel.prototype.showScore = false;
+ximpel.ConfigModel.prototype.minimumSwipeVelocity = 0.10;
+ximpel.ConfigModel.prototype.minimumSwipeTranslation = 50;
 
 // This extend method allows for extending one ConfigModel with another ConfigModel
 // The config model that is being extended gets all values overwritten from the ConfigModel
@@ -1180,6 +1185,17 @@ ximpel.Player = function( playerElement, playlistModel, configModel ){
 	// because all the items in the sequence have finished playing, the sequence player will trigger this event.
 	this.sequencePlayer.addEventHandler( this.sequencePlayer.EVENT_SEQUENCE_END, this.handleSequencePlayerEnd.bind(this) );
 
+	if (typeof Hammer === 'undefined') {
+		ximpel.warn('Hammer is not loaded. Swipe events will not be supported.');
+	} else {
+		// Add Hammer to handle swipes
+		this.mc = new Hammer.Manager( this.$playerElement[0] );
+
+		this.mc.add( new Hammer.Pan() );
+		this.mc.on( 'pan', this.onPan.bind(this) );
+	}
+
+
 	// Do some stuff to initialize the player to make it ready for use.
 	this.init();
 };
@@ -1188,6 +1204,7 @@ ximpel.Player.prototype.STATE_PAUSED = 'state_player_paused';
 ximpel.Player.prototype.STATE_STOPPED = 'state_player_stopped';
 ximpel.Player.prototype.EVENT_PLAYER_END = 'ended';
 ximpel.Player.prototype.EVENT_VARIABLE_UPDATED = 'variable_updated';
+ximpel.Player.prototype.EVENT_SWIPE = 'swipe';
 
 // Sent when a subject begins to play. The subject model is included as an argument.
 ximpel.Player.prototype.EVENT_SUBJECT_PLAYING = 'subject_playing';
@@ -1594,6 +1611,8 @@ ximpel.Player.prototype.addEventHandler = function( eventName, func ){
 			return this.pubSub.subscribe( this.EVENT_VARIABLE_UPDATED, func ); break;
 		case this.EVENT_SUBJECT_PLAYING:
 			return this.pubSub.subscribe( this.EVENT_SUBJECT_PLAYING, func ); break;
+		case this.EVENT_SWIPE:
+			return this.pubSub.subscribe( this.EVENT_SWIPE, func ); break;
 		default:
 			ximpel.warn("Player.addEventHandler(): cannot add an event handler for event '" + eventName + "'. This event is not used by the player.");
 			break;
@@ -1661,6 +1680,83 @@ ximpel.Player.prototype.getConfigProperty = function( propertyName ){
 		return null;
 	}
 }
+
+
+// Handles the pan event on the main ximpelPlayer element. If the current subject has a swipe
+// property ('swipeLeftTo', 'swipeRightTo', 'swipeUpTo' or 'swipeDownTo') that matches the pan
+// direction, we will let the main ximpelPlayer element be dragged in that direction.
+ximpel.Player.prototype.onPan = function(event){
+
+	if( ! this.isPlaying() || ! this.currentSubjectModel ){
+		ximpel.warn("Player.onPan(): Ignoring event while stopped or paused");
+		return this;
+	}
+
+	// Scale deltaX and Y to the scale of the $playerElement div.
+	var boundingRect = this.$playerElement[0].getBoundingClientRect(),
+		scaleX = boundingRect.width / this.$playerElement[0].offsetWidth,
+		scaleY = boundingRect.height / this.$playerElement[0].offsetHeight,
+		translateX = event.deltaX / scaleX,
+		translateY = event.deltaY / scaleY;
+
+	// Check whether there are subjects defined for the horizontal and vertical pan directions.
+	var hEvent = (translateX > 0) ? 'swiperight' : 'swipeleft',
+		vEvent = (translateY > 0) ? 'swipedown' : 'swipeup';
+
+	if ( ! this.currentSubjectModel.swipeTo[hEvent] && ! this.currentSubjectModel.swipeTo[vEvent] ) {
+		// No subject to swipe to in either of the directions, so lets return
+		return;
+	}
+
+	// We want the pan to be *either* horizontal or vertical, not both at the same time,
+	// so if we have subjects defined in both directions, we will choose the major one.
+	var panDirection = ( (this.currentSubjectModel.swipeTo[hEvent] && this.currentSubjectModel.swipeTo[vEvent] && Math.abs(translateX) > Math.abs(translateY)) || !this.currentSubjectModel.swipeTo[vEvent] )
+		? Hammer.DIRECTION_HORIZONTAL : Hammer.DIRECTION_VERTICAL;
+
+	var translate = (panDirection == Hammer.DIRECTION_HORIZONTAL) ? translateX : translateY;
+	var opacity = 1.0 - Math.min(1.0, Math.abs(translate) * 0.0015);
+	var scale = 1.0 - Math.min(0.4, Math.abs(translate) * 0.0001);
+
+	var swipeType = (panDirection == Hammer.DIRECTION_HORIZONTAL) ? hEvent : vEvent;
+	var nextSubject = this.currentSubjectModel.swipeTo[swipeType];
+
+	if (panDirection == Hammer.DIRECTION_HORIZONTAL) {
+		this.$playerElement.css('transform', 'translateX(' + translate + 'px) scale(' + scale + ')');
+	} else {
+		this.$playerElement.css('transform', 'translateY(' + translate + 'px) scale(' + scale + ')');
+	}
+	this.$playerElement.css('animation', '');
+	this.$playerElement.css('opacity', opacity);
+
+	if (event.isFinal) {
+		if (Math.abs(event.velocity) < this.getConfigProperty('minimumSwipeVelocity') || Math.abs(translate) < this.getConfigProperty('minimumSwipeTranslation')) {
+
+			// The pan was either too slow or didn't move far enough, so we just snap back
+			this.$playerElement.css('animation', 'swipe 0.5s ease-out forwards');
+
+		} else {
+
+			// Let's do a swipe animation
+			if (panDirection == Hammer.DIRECTION_HORIZONTAL) {
+				var initPos = this.$playerElement.width() * 0.8 * (translateX > 0 ? -1 : 1);
+				this.$playerElement.css('transform', 'translateX(' + initPos + 'px) scale(0.5)');
+			} else {
+				var initPos = this.$playerElement.height() * 0.8 * (translateY > 0 ? -1 : 1);
+				this.$playerElement.css('transform', 'translateY(' + initPos + 'px) scale(0.5)');
+			}
+			this.$playerElement.css('animation', 'swipe 0.5s ease-out forwards');
+
+			// Change subject
+			this.goTo( nextSubject.subject );
+
+			// Publish a swipe event in case anyone's interested
+			event.type = swipeType;
+			event.nextSubject = nextSubject;
+			this.pubSub.publish( this.EVENT_SWIPE, event );
+		}
+	}
+}
+
 // Parser()
 // The main method of the parser is .parse() which takes an XMLDoc of the playlist and config.
 // The parser processes these XML docs by traversing the node tree recursively and calling a processor 
@@ -1852,7 +1948,23 @@ ximpel.Parser.prototype.processSubjectNode = function( playlistModel, domElement
 			var leadsToModel = new ximpel.LeadsToModel();
 			leadsToModel.subject = attributeValue;
 			subjectModel.leadsToList.push( leadsToModel );
-		} else{
+		} else if( attributeName === 'swipeLeftTo' ){
+			var leadsToModel = new ximpel.LeadsToModel();
+			leadsToModel.subject = attributeValue;
+			subjectModel.swipeTo.swipeleft = leadsToModel;
+		} else if( attributeName === 'swipeRightTo' ){
+			var leadsToModel = new ximpel.LeadsToModel();
+			leadsToModel.subject = attributeValue;
+			subjectModel.swipeTo.swiperight = leadsToModel;
+		} else if( attributeName === 'swipeUpTo' ){
+			var leadsToModel = new ximpel.LeadsToModel();
+			leadsToModel.subject = attributeValue;
+			subjectModel.swipeTo.swipeup = leadsToModel;
+		} else if( attributeName === 'swipeDownTo' ){
+			var leadsToModel = new ximpel.LeadsToModel();
+			leadsToModel.subject = attributeValue;
+			subjectModel.swipeTo.swipedown = leadsToModel;
+		}  else{
 			ximpel.warn('Parser.processSubjectNode(): Invalid attribute ignored! Attribute \''+attributeName+'\' on element <'+info.tagName+'> is not supported. Make sure you spelled the attribute name correctly.');
 		}
 	}
@@ -2395,6 +2507,10 @@ ximpel.Parser.prototype.processConfigNode = function( domElement ){
 			configModel.mediaDirectory = $.trim(child.textContent);
 		} else if( childName === 'showScore' ){
 			configModel.showScore = ( $.trim(child.textContent).toLowerCase() === 'true');
+		} else if( childName === 'minimumSwipeVelocity' ){
+			configModel.minimumSwipeVelocity = parseFloat(child.textContent);
+		} else if( childName === 'minimumSwipeTranslation' ){
+			configModel.minimumSwipeTranslation = parseFloat(child.textContent)
 		}
 		else{
 			ximpel.warn('Parser.processConfigNode(): Invalid child ignored! Element <'+info.tagName+'> has child <'+childName+'>.This child element is not allowed on <'+info.tagName+'>.');
@@ -2539,6 +2655,8 @@ ximpel.MediaPlayer = function( player, mediaModel ){
 };
 ximpel.MediaPlayer.prototype.MEDIA_PLAYER_UPDATE_INTERVAL = 50; 
 ximpel.MediaPlayer.prototype.EVENT_MEDIA_PLAYER_END = 'ended';
+ximpel.MediaPlayer.prototype.EVENT_IFRAME_OPEN = 'iframe_open';
+ximpel.MediaPlayer.prototype.EVENT_IFRAME_CLOSE = 'iframe_close';
 ximpel.MediaPlayer.prototype.STATE_PLAYING = 'state_mp_playing';
 ximpel.MediaPlayer.prototype.STATE_PAUSED = 'state_mp_paused';
 ximpel.MediaPlayer.prototype.STATE_STOPPED = 'state_mp_stopped';
@@ -2835,15 +2953,18 @@ ximpel.MediaPlayer.prototype.handleOverlayClick = function( overlayModel, overla
 
 			$closeButton = $('<img class="closeButton" src="ximpel/images/close_button.png"/>')
 				.one('click', function(){
+					this.pubSub.publish( this.EVENT_IFRAME_CLOSE, url );
 					$urlDisplay.remove();
 					if( $player.isPaused() ){
 						$player.resume();
 					}
-				});
+				}.bind(this));
 
 			$urlDisplay.append( $('<iframe src="' + url + '"></iframe>') )
 				.append( $closeButton )
 				.appendTo( this.player.getPlayerElement() );
+
+			this.pubSub.publish( this.EVENT_IFRAME_OPEN, url );
 
 		} else{
 			// start playing the subject specified in the leadsTo
@@ -5021,11 +5142,23 @@ ximpel.mediaTypeDefinitions.Video = function( customElements, customAttributes, 
 	// The statTime should be in seconds but can be a floating point number.
 	this.startTime = customAttributes['startTime'] || 0;
 
-	// will hold the video's HTML element (or more specifically a jquery selector that points to the HTML element).
+	// jQuery selectors that point to the video container div, the video element itself and
+	// a progressbar. We will create the following DOM structure:
+	//   <div class="ximpelVideoContainer">
+	//     <video />
+	//     <div class="ximpelProgressBar">
+	//       <div />
+	//    </div>
+	//   </div>
+	this.$videoContainer = null;
 	this.$video = null;
+	this.$progressBar = null;
 
 	// Get the <source> element that was specified in the playlist for this video (should be one element)
 	var playlistSourceElement = ximpel.filterArrayOfObjects( customElements, 'elementName', 'source' )[0];
+
+	// Show progress bar if the <video ... progressbar="true" />
+	this.showProgressBar = (customAttributes.progressbar == 'true');
 
 	// Get a jquery object that selects all the html source elements that should be added to the video element.
 	this.$htmlSourceElements = this.getHtmlSourceElements( playlistSourceElement );
@@ -5042,6 +5175,18 @@ ximpel.mediaTypeDefinitions.Video.prototype = new ximpel.MediaType();
 ximpel.mediaTypeDefinitions.Video.prototype.STATE_PLAYING = 'state_video_playing';
 ximpel.mediaTypeDefinitions.Video.prototype.STATE_PAUSED = 'state_video_paused';
 ximpel.mediaTypeDefinitions.Video.prototype.STATE_STOPPED = 'state_video_stopped';
+
+
+
+// This method is called every time the 'timeupdate' event fires, which is whenever the
+// `currentTime` attribute of the video has been updated. If the video has a progress bar
+// (defined in the playlist), we will update it.
+ximpel.mediaTypeDefinitions.Video.prototype.timeupdate = function(evt) {
+	var progress = evt.currentTarget.currentTime / evt.currentTarget.duration * 100;
+	if (this.$progressBar) {
+		this.$progressBar.css({width: progress + '%'});
+	}
+};
 
 
 
@@ -5064,6 +5209,7 @@ ximpel.mediaTypeDefinitions.Video.prototype.mediaPlay = function(){
 		'preload': 'none'
 	});
 	var videoElement = $video[0];
+	var $videoContainer = this.$videoContainer = $('<div class="ximpelVideoContainer" />').append($video);
 
 	// Add the HTML source elements to the video element (the browser will pick which source to use once the video starts loading).
 	$video.append( this.$htmlSourceElements );
@@ -5073,7 +5219,13 @@ ximpel.mediaTypeDefinitions.Video.prototype.mediaPlay = function(){
 	// with .addEventHandler('end', handlerFunc) will be called. Here we indicate that the .ended() method will be
 	// called when the 'ended' event on the video element is triggered (ie. when the video has nothing more to play).
 	$video.on('ended', this.ended.bind(this) );
-	
+
+	// Call 'timeupdate' method on the 'timeupdate' event
+	$video.on('timeupdate', this.timeupdate.bind(this) );
+
+	// Call 'timeupdate' method on the `timeupdate` event
+	$video.on( 'timeupdate', this.timeupdate.bind(this) );
+
 	// Set an event listener (that runs only once) for the loadedmetadata event. This waits till the metadata of the video
 	// (duration, videoWidth, videoHeight) has been loaded and then executes the function.
 	$video.one("loadedmetadata", function(){
@@ -5081,9 +5233,15 @@ ximpel.mediaTypeDefinitions.Video.prototype.mediaPlay = function(){
 
 		// Set the current position in the video to the appropriate startTime (this can only be done after the metadata is loaded).
 		videoElement.currentTime = this.startTime;
-		
-		// Attach the video element to the DOM.
-		this.$video.appendTo( this.$attachTo );
+
+		// Attach the progress bar to the video container
+		if (this.showProgressBar) {
+			var $progressBar = this.$progressBar = $('<div />');
+			$('<div class="ximpelProgressBar" />').append($progressBar).appendTo(this.$videoContainer);
+		}
+
+		// Attach the video container to the DOM.
+		this.$videoContainer.appendTo( this.$attachTo );
 
 		// This sets the x, y, width and height of the video (can only be done after the video is appended to the DOM)
 		this.calculateVideoDetails();
@@ -5171,7 +5329,6 @@ ximpel.mediaTypeDefinitions.Video.prototype.mediaStop = function(){
 	// Indicate that the media item is now in a stopped state.
 	this.state = this.STATE_STOPPED;
 
-	var $video = this.$video;
 	var videoElement = this.$video[0];
 	videoElement.pause();
 	
@@ -5182,11 +5339,13 @@ ximpel.mediaTypeDefinitions.Video.prototype.mediaStop = function(){
 	videoElement.load();
 
 	// We detach and remove the video element. We just create it again when the play method is called.
-	$video.detach();
-	$video.remove();
+	this.$videoContainer.detach();
+	this.$videoContainer.remove();
 
 	// Make sure we are back in the state the media item was in before it started playing.
+	this.$videoContainer = null;
 	this.$video = null;
+	this.$progressBar = null;
 	this.bufferingPromise = null;
 }
 
@@ -5261,13 +5420,13 @@ ximpel.mediaTypeDefinitions.Video.prototype.calculateVideoDetails = function(){
 	// We need to do this before we check if x and y are equal to "center"
 	// because determining the x and y to center the video can only be done if the width and height of the
 	// video are known and this information is only accessible if we set it here.
-	this.$video.css({
+	this.$videoContainer.css({
 		'position': 'absolute',
 		'width': width,
 		'height': height,
 		'left': x,
 		'top': y
-	});	
+	});
 
 	// If x or y are set to 'center' then we use the width and height of the video element to determine the x and y coordinates such
 	// that the video element is centered within the player element.
@@ -5277,7 +5436,7 @@ ximpel.mediaTypeDefinitions.Video.prototype.calculateVideoDetails = function(){
 	if( this.y === 'center' ){
 		var y = Math.round( Math.abs( this.$attachTo.height() - this.$video.height() ) / 2 );
 	}
-	this.$video.css({
+	this.$videoContainer.css({
 		'left': x,
 		'top': y
 	});
@@ -5374,6 +5533,88 @@ var mediaTypeRegistrationObject = new ximpel.MediaTypeRegistration(
 
 ximpel.registerMediaType( mediaTypeRegistrationObject );
 
+ximpel.mediaTypeDefinitions.Iframe = function( customEl, customAttr, $el, player ){
+   
+    this.customElements = customEl;
+    this.customAttributes = customAttr;
+    this.$parentElement = $el;
+    this.player = player;
+    
+    var iFrameUrl = this.customAttributes.url;
+    var iFrameBackgroundColor = this.customAttributes.backgroundColor;
+    if(iFrameBackgroundColor == null) {
+    	iFrameBackgroundColor = "#000000";
+    }
+    var containerBackgroundColor = this.customAttributes.containerBackgroundColor;
+    if(containerBackgroundColor == null) {
+    	containerBackgroundColor = "#000000";
+    }
+    var iFrameX = this.customAttributes.x;
+    if(iFrameX == null) {
+    	iFrameX = 0;
+    }
+    var iFrameY = this.customAttributes.y;
+    if(iFrameY == null) {
+    	iFrameY = 0;
+    }
+    var iFrameWidth = this.customAttributes.width;
+    if(iFrameWidth == null) {
+    	iFrameWidth = 1920;
+    }
+    var iFrameHeight = this.customAttributes.height;
+    if(iFrameHeight == null) {
+    	iFrameHeight = 1080;
+    }
+  
+	//use of 'container' property to allow for overlays
+	//for now: use margin-left and margin-top to utilize specified x and y values
+    this.$iframeSpan = $('<div style="background-color:'+ containerBackgroundColor +'" class="container"></div>');
+    
+    this.$iframeSpan.html( $('<iframe width="' + iFrameWidth + '" height="' + iFrameHeight + '" style="margin-left:'+iFrameX+'; margin-top:'+iFrameY+'; border:0px solid white; top: 500px; background-color:'+ iFrameBackgroundColor +'" wmode="Opaque" src="' + iFrameUrl + '"></iframe>') );
+    
+    /*this.$iframeSpan.css({
+        'color': 'red',
+        'font-size': '100px'
+    });*/
+  
+    this.state = 'stopped';
+}
+ximpel.mediaTypeDefinitions.Iframe.prototype = new ximpel.MediaType();
+  
+ximpel.mediaTypeDefinitions.Iframe.prototype.mediaPlay = function(){
+    this.state = 'playing';
+    this.$parentElement.append( this.$iframeSpan );
+}
+  
+ximpel.mediaTypeDefinitions.Iframe.prototype.mediaPause = function(){
+    this.state = 'paused';
+}
+  
+ximpel.mediaTypeDefinitions.Iframe.prototype.mediaStop = function(){
+    this.state = 'stopped';
+    this.$iframeSpan.detach();
+}
+  
+ximpel.mediaTypeDefinitions.Iframe.prototype.mediaIsPlaying = function(){
+    return this.state === 'playing';
+}
+  
+ximpel.mediaTypeDefinitions.Iframe.prototype.mediaIsPaused = function(){
+    return this.state === 'paused';
+}
+  
+ximpel.mediaTypeDefinitions.Iframe.prototype.mediaIsStopped = function(){
+    return this.state === 'stopped';
+}
+ 
+// Register the media type with XIMPEL
+var r = new ximpel.MediaTypeRegistration('iframe', ximpel.mediaTypeDefinitions.Iframe, {
+        'allowedAttributes': ['url','width','height','backgroundColor','containerBackgroundColor','x','y'],
+        'requiredAttributes': ['url'],
+        'allowedChildren': [],
+        'requiredChildren': [],
+} );
+ximpel.registerMediaType( r );
 // Image
 // The Image object implements a media type for XIMPEL to use. This media type is one of the core media types that ship with
 // XIMPEL by default. MediaTypes are a sort of plugins. Anyone can create their own media type. None of the media types
