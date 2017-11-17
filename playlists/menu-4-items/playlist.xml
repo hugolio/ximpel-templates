@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ximpel>
+    <playlist>
+    
+    	<!-- first selection menu -->
+   		<subject id="selectionmenu1">
+			<media>
+				<!--background video-->
+				<youtube id="gbrkMDkHRqc">
+					<!-- title -->
+					<overlay text="Selection menu 1 title" x="150px" y="75px" width="1350px" height="80px" />
+					<!-- button -->
+					<overlay text="next" shape="circle" x="1625px" y="550px" width="150px" height="150px" leadsTo="selectionmenu2" />
+					<!-- menu options-->
+					<overlay text="item 1" image="media/test.jpg" x="150px" y="250px" width="650px" height="350px" alpha="1" leadsTo="item1" />
+					<overlay text="item 2" image="media/test.jpg" x="850px" y="250px" width="650px" height="350px" alpha="1" leadsTo="item2" />
+					<overlay text="item 3" image="media/test.jpg" x="150px" y="650px" width="650px" height="350px" alpha="1" leadsTo="item3" />
+					<overlay text="item 4" image="media/test.jpg" x="850px" y="650px" width="650px" height="350px" alpha="1" leadsTo="item4" />
+				</youtube>
+			</media>
+		</subject>
+		
+		<!-- items in the first selection menu -->
+		<subject id="item1">
+			<media>
+				<image src="media/zs.jpg">
+					<!-- title -->
+					<overlay text="Item 1 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item2">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 2 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item3">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 3 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item4">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 4 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<!-- second selection menu -->
+		<subject id="selectionmenu2">
+			<media>
+				<!--background video-->
+				<youtube id="gbrkMDkHRqc">
+					<!-- title -->
+					<overlay text="Selection menu 2 title" x="400px" y="75px" width="1350px" height="80px" />
+					<!-- button -->
+					<overlay text="prev" shape="circle" x="150px" y="550px" width="150px" height="150px" leadsTo="selectionmenu1" />
+					<!-- menu options-->
+					<overlay text="item 5" image="media/test.jpg" x="400px" y="250px" width="650px" height="350px" alpha="1" leadsTo="item5" />
+					<overlay text="item 6" image="media/test.jpg" x="1100px" y="250px" width="650px" height="350px" alpha="1" leadsTo="item6" />
+					<overlay text="item 7" image="media/test.jpg" x="400px" y="650px" width="650px" height="350px" alpha="1" leadsTo="item7" />
+					<overlay text="item 8" image="media/test.jpg" x="1100px" y="650px" width="650px" height="350px" alpha="1" leadsTo="item8" />
+				</youtube>
+			</media>
+		</subject>
+		
+		<!-- items in the second selection menu -->
+		<subject id="item5">
+			<media>
+				<image src="media/zs.jpg">
+					<!-- title -->
+					<overlay text="Item 5 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item6">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 6 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item7">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 7 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item8">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 8 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+    </playlist>    
+</ximpel>
