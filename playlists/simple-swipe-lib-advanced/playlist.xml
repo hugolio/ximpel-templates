@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ximpel>
+	<!-- sample-swipe-lib example -->
+    <playlist>
+    
+		<!-- 1st (initial) screen, swipe forward (left) (to screen 2), swipe backward (right) (to last screen 3) -->
+   		<subject id="screen1" swipeLeftTo="screen2" swipeRightTo="screen3">
+			<media>
+				<!--background video-->
+				<youtube id="CS3_cQRLc7c" startTime="88" mute="true" repeat="true">		
+					<!-- map overlay -->
+					<overlay x="300px" y="250px" width="1350px" height="650px"  image="media/simple-swipe-lib/hangar_venstre.png" alpha="0.9" hoverAlpha="0.9" />
+					
+					<!-- title -->
+					<overlay text="Science Library: Hangaren (left side)" textColor="black" x="300px" y="100px" width="1350px" height="80px" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore the library →" x="300px" y="935px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />			
+				</youtube>
+			</media>
+		</subject>
+		
+		<!-- 2nd screen, swipe forward (left) (to screen 3), swipe backward (right) (to screen 1) -->
+   		<subject id="screen2" swipeLeftTo="screen3" swipeRightTo="screen1">
+			<media>
+				<!--background video-->
+				<youtube id="CS3_cQRLc7c" startTime="126" mute="true" repeat="true">
+				
+					<!-- map overlay -->
+					<overlay x="300px" y="250px" width="1350px" height="650px" image="media/simple-swipe-lib/hangar_hoeyre.png" alpha="0.9" hoverAlpha="0.9" />
+				
+					<!-- title -->
+					<overlay text="Science Library: Hangaren (right side)" textColor="black" x="300px" y="100px" width="1350px" height="80px" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore the library →" x="300px" y="935px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />
+				</youtube>
+			</media>
+		</subject>
+		
+		<!-- 3rd screen, swipe forward (left) (loop to screen 1), swipe backward (right) (to screen 2) -->
+   		<subject id="screen3" swipeLeftTo="screen1" swipeRightTo="screen2">
+			<media>
+				<!--background video-->
+				<youtube id="CS3_cQRLc7c" startTime="46" mute="true" repeat="true">
+					<!-- map overlay -->
+					<overlay x="300px" y="250px" width="1350px" height="650px" image="media/simple-swipe-lib/messanin.png" alpha="0.9" hoverAlpha="0.9" />
+				
+					<!-- title -->
+					<overlay text="Science Library: Messanin" textColor="black" x="300px" y="100px" width="1350px" height="80px" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore the library →" x="300px" y="935px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />
+				</youtube>
+			</media>
+		</subject>
+		
+    </playlist>    
+</ximpel>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ximpel>
+	<!-- sample-swipe-lib example -->
+    <playlist>
+    
+		<!-- 1st (initial) screen, swipe forward (left) (to screen 2), swipe backward (right) (to last screen 3) -->
+   		<subject id="screen1" swipeLeftTo="screen2" swipeRightTo="screen3">
+			<media>
+				<!--background image-->
+				<image src="media/simple-swipe-lib/hangar_venstre.png">		
+					<!-- title -->
+					<overlay text="Science Library: Hangaren (left side)" x="300px" y="25px" width="1350px" height="80px" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore the library →" x="300px" y="975px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />			
+				</image>
+			</media>
+		</subject>
+		
+		<!-- 2nd screen, swipe forward (left) (to screen 3), swipe backward (right) (to screen 1) -->
+   		<subject id="screen2" swipeLeftTo="screen3" swipeRightTo="screen1">
+			<media>
+				<!--background image-->
+				<image src="media/simple-swipe-lib/hangar_hoeyre.png">	
+					<!-- title -->
+					<overlay text="Science Library: Hangaren (right side)" x="300px" y="25px" width="1350px" height="80px" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore the library →" x="300px" y="975px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />
+				</image>
+			</media>
+		</subject>
+		
+		<!-- 3rd screen, swipe forward (left) (loop to screen 1), swipe backward (right) (to screen 2) -->
+   		<subject id="screen3" swipeLeftTo="screen1" swipeRightTo="screen2">
+			<media>
+				<!--background image-->
+				<image src="media/simple-swipe-lib/messanin.png">
+					<!-- title -->
+					<overlay text="Science Library: Messanin" x="300px" y="25px" width="1350px" height="80px" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore the library →" x="300px" y="975px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />
+				</image>
+			</media>
+		</subject>
+		
+    </playlist>    
+</ximpel>

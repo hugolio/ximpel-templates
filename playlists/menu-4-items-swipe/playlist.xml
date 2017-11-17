@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ximpel>
+    <playlist>
+    
+    	<!-- first selection menu, swipe left (next menu), swipe right (to menu 3) -->
+   		<subject id="selectionmenu1" swipeLeftTo="selectionmenu2" swipeRightTo="selectionmenu3">
+			<media>
+				<!--background video-->
+				<youtube id="gbrkMDkHRqc">
+					<!-- title -->
+					<overlay text="Selection menu 1 title" x="300px" y="100px" width="1350px" height="80px" />
+					<!-- menu options-->
+					<overlay text="item 1" image="media/test.jpg" x="300px" y="215px" width="600px" height="323px" alpha="1" leadsTo="item1" />
+					<overlay text="item 2" image="media/test.jpg" x="1050px" y="215px" width="600px" height="323px" alpha="1" leadsTo="item2" />
+					<overlay text="item 3" image="media/test.jpg" x="300px" y="575px" width="600px" height="323px" alpha="1" leadsTo="item3" />
+					<overlay text="item 4" image="media/test.jpg" x="1050px" y="575px" width="600px" height="323px" alpha="1" leadsTo="item4" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore more content →" x="300px" y="935px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />
+				</youtube>
+			</media>
+		</subject>
+		
+		<!-- items in the first selection menu -->
+		<subject id="item1">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 1 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item2">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 2 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item3">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 3 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item4">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 4 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu1" />
+				</image>
+			</media>
+		</subject>
+		
+		<!-- second selection menu, swipe left (next menu) and right (previous menu) -->
+		<subject id="selectionmenu2" swipeLeftTo="selectionmenu3" swipeRightTo="selectionmenu1">
+			<media>
+				<!--background video-->
+				<youtube id="gbrkMDkHRqc">
+					<!-- title -->
+					<overlay text="Selection menu 2 title" x="300px" y="100px" width="1350px" height="80px" />
+					<!-- menu options-->
+					<overlay text="item 5" image="media/test.jpg" x="300px" y="215px" width="600px" height="323px" alpha="1" leadsTo="item5" />
+					<overlay text="item 6" image="media/test.jpg" x="1050px" y="215px" width="600px" height="323px" alpha="1" leadsTo="item6" />
+					<overlay text="item 7" image="media/test.jpg" x="300px" y="575px" width="600px" height="323px" alpha="1" leadsTo="item7" />
+					<overlay text="item 8" image="media/test.jpg" x="1050px" y="575px" width="600px" height="323px" alpha="1" leadsTo="item8" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore more content →" x="300px" y="935px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />
+				</youtube>
+			</media>
+		</subject>
+		
+		<!-- items in the second selection menu -->
+		<subject id="item5">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 5 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item6">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 6 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item7">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 7 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item8">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 8 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu2" />
+				</image>
+			</media>
+		</subject>
+		
+		<!-- third selection menu, swipe left (show menu 1 again) and right (previous menu) -->
+		<subject id="selectionmenu3" swipeLeftTo="selectionmenu1" swipeRightTo="selectionmenu2">
+			<media>
+				<!--background video-->
+				<youtube id="gbrkMDkHRqc">
+					<!-- title -->
+					<overlay text="Selection menu 3 title" x="300px" y="100px" width="1350px" height="80px" />
+					<!-- menu options-->
+					<overlay text="item 9" image="media/test.jpg" x="300px" y="215px" width="600px" height="323px" alpha="1" leadsTo="item9" />
+					<overlay text="item 10" image="media/test.jpg" x="1050px" y="215px" width="600px" height="323px" alpha="1" leadsTo="item10" />
+					<overlay text="item 11" image="media/test.jpg" x="300px" y="575px" width="600px" height="323px" alpha="1" leadsTo="item11" />
+					<overlay text="item 12" image="media/test.jpg" x="1050px" y="575px" width="600px" height="323px" alpha="1" leadsTo="item12" />
+					<!-- swipe indication -->
+					<overlay text="← swipe to explore more content →" x="300px" y="935px" width="1350px" height="80px"  backgroundColor="purple" alpha="0.5" hoverAlpha="0.5" />
+				</youtube>
+			</media>
+		</subject>
+		
+		<!-- items in the second selection menu -->
+		<subject id="item9">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 9 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu3" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item10">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 10 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu3" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item11">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 11 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu3" />
+				</image>
+			</media>
+		</subject>
+		
+		<subject id="item12">
+			<media>
+				<image src="media/test.jpg">
+					<!-- title -->
+					<overlay text="Item 12 title" x="210px" y="75px" width="1500px" height="80px" />
+					<!-- home button -->
+					<overlay text="home" shape="circle" x="1750px" y="900px" width="150px" height="150px" leadsTo="selectionmenu3" />
+				</image>
+			</media>
+		</subject>
+    </playlist>    
+</ximpel>
